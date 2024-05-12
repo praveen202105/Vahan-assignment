@@ -9,11 +9,11 @@ const authorize = require('../middlewares/authorize');
 const { PrismaClient } = require('@prisma/client');
 
 
-// router.use(authenticate);
+router.use(authenticate);
 
-router.get('/', employeeController.getAllEmployees);
-router.get('/:id',authorize, employeeController.getEmployeeById);
-router.post('/', authorize,employeeController.createEmployee);
+router.get('/',employeeController.getAllEmployees);
+router.get('/:id', employeeController.getEmployeeById);
+router.post('/', employeeController.createEmployee);
 router.put('/:id',authorize , employeeController.updateEmployee);
 router.delete('/:id', authorize, employeeController.deleteEmployee);
 

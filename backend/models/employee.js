@@ -24,8 +24,18 @@ const addEmployeeToTeam = async (employeeId, teamLeadId) => {
   }
 };
 
-const removeEmployeeFromTeam = async (employeeId) => {
+const removeEmployeeFromTeam = async (employeeId, teamLeadId) => {
   try {
+    // Verify if the authenticated user is the team lead who assigned the employee
+    const assignedEmployee = await prisma.employee.findFirst({
+      where: { id: employeeId, teamLeadId: teamLeadId },
+    });
+
+    if (!assignedEmployee) {
+      throw new Error('You are not authorized to remove this employee from the team.');
+    }
+
+    // If authorized, remove the employee from the team
     const updatedEmployee = await prisma.employee.update({
       where: { id: employeeId },
       data: { teamLeadId: null },
@@ -36,6 +46,7 @@ const removeEmployeeFromTeam = async (employeeId) => {
     throw error;
   }
 };
+
 
 const Employee = {
   getAll: async () => {

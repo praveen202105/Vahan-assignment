@@ -8,9 +8,9 @@ const authorize = require('../middlewares/authorize');
 
 router.use(authenticate);
 
-router.post('/addEmployee', authorize, TeamController.addEmployee);
+router.post('/addEmployee',  TeamController.addEmployee);
 
 
-router.post('/removeEmployee', authorize, TeamController.removeEmployee);
+router.post('/removeEmployee',TeamController.removeEmployee);
 
 module.exports = router;

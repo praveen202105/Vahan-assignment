@@ -21,20 +21,22 @@ const employeeController = {
     }
   },
   createEmployee: async (req, res) => {
-    const { name, email, mobile, dob } = req.body;
+    const { name, email, mobile, dob, companyId } = req.body; // Include companyId in the request body
     try {
       const newEmployee = await Employee.create({
         name,
         email,
         mobile,
         dob: new Date(dob), // Convert to JavaScript Date object
+        companyId, // Associate the employee with the specified company
       });
       res.json(newEmployee);
     } catch (error) {
-        console.log(error);
+      console.log(error);
       res.status(500).json({ error: 'Error creating employee' });
     }
   },
+  
   updateEmployee: async (req, res) => {
     const { id } = req.params;
     const { name, email, mobile, dob } = req.body;

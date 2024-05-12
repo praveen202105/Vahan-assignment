@@ -14,7 +14,7 @@ app.use(express.json());
 
 app.use('/auth', authRoutes);
 app.use('/employees', employeeRoutes);
-app.use('teams', teamsRoutes);
+app.use('/team', teamsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

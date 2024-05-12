@@ -10,42 +10,51 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 router.post('/register', async (req, res) => {
-  const { email, password, role, organizationName } = req.body;
+    const { email, password, role, organizationName, OrganizationId } = req.body;
 
-  try {
-    // Check if user with the provided email already exists
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({ error: 'User with this email already exists' });
-    }
+    try {
+        // Check if user with the provided email already exists
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+        if (existingUser) {
+            return res.status(400).json({ error: 'User with this email already exists' });
+        }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+        // Ensure that organization details are provided based on the role
+        if (role === 'OWNER' && !organizationName) {
+            return res.status(400).json({ error: 'Organization name is required for owner role' });
+        }
 
-    // Create the organization and user
-    const organization = await prisma.organization.create({
-      data: {
-        name: organizationName,
-        owner: {
-          create: {
+        if (role === 'TEAM_LEAD' && !OrganizationId) {
+            return res.status(400).json({ error: 'Organization ID is required for team lead role' });
+        }
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create the organization and user
+        const userData = {
             email,
             password: hashedPassword,
             role,
-          },
-        },
-      },
-      include: { owner: true },
-    });
+            Organization: role === 'OWNER' ? organizationName : undefined, // Set organization name based on role
+            OrganizationId: role === 'TEAM_LEAD' ? OrganizationId : undefined, // Set organization id based on role
+        };
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: organization.owner.id }, secretKey, { expiresIn });
+        const user = await prisma.user.create({
+            data: userData,
+        });
 
-    res.json({ token, role });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+        // Generate JWT token
+        const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn });
+
+        res.json({ token, role ,user});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
+
+
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -66,7 +75,7 @@ router.post('/login', async (req, res) => {
     // Generate JWT token
     const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn });
 
-    res.json({ token, role: user.role });
+    res.json({ token, role: user.role ,user});
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });

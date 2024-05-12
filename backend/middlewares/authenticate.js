@@ -1,28 +1,29 @@
-
-
 const jwt = require('jsonwebtoken');
 const { secretKey } = require('../confiq/jwt');
 
 const authenticate = (req, res, next) => {
-  
-  const token = req.header('Authorization');
-
-  
-  if (!token) {
+  // Extract the token from the Authorization header
+  const authHeader = req.header('Authorization');
+  if (!authHeader) {
     return res.status(401).json({ error: 'Unauthorized: No token provided' });
   }
 
+  // Split the header value to get the token part
+  const token = authHeader.split(' ')[1];
+
   try {
-   
+    // Verify the token
     const decoded = jwt.verify(token, secretKey);
 
-   
+    // Log decoded token information for debugging (avoid logging sensitive information in production)
+    console.log('Decoded Token:', decoded);
+
+    // Attach the decoded user ID to the request object for future use
     req.userId = decoded.userId;
 
- 
     next();
   } catch (error) {
-    console.error(error);
+    console.error('JWT Verification Error:', error);
     return res.status(401).json({ error: 'Unauthorized: Invalid token' });
   }
 };
