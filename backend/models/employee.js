@@ -1,19 +1,16 @@
 
-
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 const db = require('../confiq/database');
 
 const addEmployeeToTeam = async (employeeId, teamLeadId) => {
   try {
-    const existingEmployee = await prisma.employee.findFirst({
+    const existingEmployee = await db.employee.findFirst({
       where: { id: employeeId, teamLeadId: { not: null } },
     });
     if (existingEmployee) {
       throw new Error('Employee is already assigned to a team');
     }
 
-    const updatedEmployee = await prisma.employee.update({
+    const updatedEmployee = await db.employee.update({
       where: { id: employeeId },
       data: { teamLeadId },
     });
@@ -27,7 +24,7 @@ const addEmployeeToTeam = async (employeeId, teamLeadId) => {
 const removeEmployeeFromTeam = async (employeeId, teamLeadId) => {
   try {
     // Verify if the authenticated user is the team lead who assigned the employee
-    const assignedEmployee = await prisma.employee.findFirst({
+    const assignedEmployee = await db.employee.findFirst({
       where: { id: employeeId, teamLeadId: teamLeadId },
     });
 
@@ -36,7 +33,7 @@ const removeEmployeeFromTeam = async (employeeId, teamLeadId) => {
     }
 
     // If authorized, remove the employee from the team
-    const updatedEmployee = await prisma.employee.update({
+    const updatedEmployee = await db.employee.update({
       where: { id: employeeId },
       data: { teamLeadId: null },
     });
@@ -49,13 +46,18 @@ const removeEmployeeFromTeam = async (employeeId, teamLeadId) => {
 
 
 const Employee = {
-  getAll: async () => {
+  getAll: async (companyId) => {
     try {
-      return await db.employee.findMany();
+      return await db.employee.findMany({
+        where: {
+          companyId: parseInt(companyId) 
+        }
+      });
     } catch (error) {
       throw error;
-    }
+    } 
   },
+  
   getById: async (id) => {
     try {
       return await db.employee.findUnique({

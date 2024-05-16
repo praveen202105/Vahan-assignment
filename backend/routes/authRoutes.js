@@ -45,11 +45,13 @@ router.post('/register', async (req, res) => {
         });
 
         // Generate JWT token
-        const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn });
+        const token = jwt.sign({OrgId:user.OrganizationId, userId: user.id ,role: user.role}, secretKey, { expiresIn });
 
         res.json({ token, role ,user});
+        console.log(token)
     } catch (error) {
         console.error(error);
+        console.log(error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -58,7 +60,7 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-
+  console.log("Called login")
   try {
     // Check if user with the provided email exists
     const user = await prisma.user.findUnique({ where: { email } });
@@ -71,11 +73,11 @@ router.post('/login', async (req, res) => {
     if (!isPasswordValid) {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
-
+  // console.log(user)
     // Generate JWT token
-    const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn });
+    const token = jwt.sign({OrgId:user.OrganizationId, userId: user.id ,role: user.role}, secretKey, { expiresIn });
 
-    res.json({ token, role: user.role ,user});
+    res.json({ token:token, role: user.role ,user});
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });

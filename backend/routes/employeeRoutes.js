@@ -11,10 +11,12 @@ const { PrismaClient } = require('@prisma/client');
 
 router.use(authenticate);
 
-router.get('/',employeeController.getAllEmployees);
+router.get('/:companyId',employeeController.getAllEmployees);
 router.get('/:id', employeeController.getEmployeeById);
 router.post('/', employeeController.createEmployee);
-router.put('/:id',authorize , employeeController.updateEmployee);
-router.delete('/:id', authorize, employeeController.deleteEmployee);
+router.put('/:id', employeeController.updateEmployee);
+router.delete('/:id',
+
+employeeController.deleteEmployee);
 
 module.exports = router;

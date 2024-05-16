@@ -1,0 +1,21 @@
+.App {
+  text-align: center;
+  margin-top: 50px;
+}
+
+form {
+  display: inline-block;
+  text-align: left;
+}
+
+label {
+  margin-right: 10px;
+}
+
+input {
+  margin-bottom: 10px;
+}
+
+button {
+  margin-top: 10px;
+}

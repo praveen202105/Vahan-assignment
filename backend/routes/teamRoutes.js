@@ -12,5 +12,6 @@ router.post('/addEmployee',  TeamController.addEmployee);
 
 
 router.post('/removeEmployee',TeamController.removeEmployee);
+router.get('/allmembers/:teamLeadId',TeamController.getAllMembers);
 
 module.exports = router;
