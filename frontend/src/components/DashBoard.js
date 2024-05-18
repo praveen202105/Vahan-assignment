@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Cookies from 'js-cookie';
-import {jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
-import EmployeeList from './EmployeeList';
-import TeamManagement from "./TeamManagement"
+import OwnerActions from './OwnerActions';
+import TeamManagement from './TeamManagement';
 
 function Dashboard() {
   const [userRole, setUserRole] = useState(null);
+  const [logoutSuccess, setLogoutSuccess] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => { 
+  useEffect(() => {
     const fetchUserRole = async () => {
       try {
         const token = Cookies.get('token');
@@ -18,9 +18,7 @@ function Dashboard() {
           navigate('/login');
           return;
         }
-        console.log(token)
         const decodedToken = jwtDecode(token);
-        console.log(decodedToken)
         setUserRole(decodedToken.role);
       } catch (error) {
         console.error('Error fetching user role:', error);
@@ -31,31 +29,45 @@ function Dashboard() {
     fetchUserRole();
   }, [navigate]);
 
+  const handleLogout = () => {
+    Cookies.remove('token');
+    setLogoutSuccess(true);
+    setTimeout(() => {
+      setLogoutSuccess(false);
+      navigate('/login');
+    }, 2000); // Show the message for 2 seconds
+  };
+
   if (!userRole) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
   return (
-    <div>
-      <h2>Dashboard</h2>
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-3xl font-bold">Dashboard</h2>
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
+      {logoutSuccess && (
+        <div className="fixed top-0 left-1/2 transform -translate-x-1/2 mt-4 px-4 py-2 bg-green-500 text-white rounded-lg shadow-md">
+          Successfully logged out!
+        </div>
+      )}
       {userRole === 'OWNER' && (
-        <div>
-          <h3>Owner Actions</h3>
-          <EmployeeList />
-          {/* Add other owner-specific components or actions here */}
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+          <h3 className="text-2xl font-semibold mb-4">Owner Actions</h3>
+          <OwnerActions />
         </div>
       )}
       {userRole === 'TEAM_LEAD' && (
-        <div>
-          <h3>Team Lead Actions</h3>
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+          <h3 className="text-2xl font-semibold mb-4">Team Lead Actions</h3>
           <TeamManagement />
-          {/* Add other team lead-specific components or actions here */}
-        </div>
-      )}
-      {userRole !== 'OWNER' && userRole !== 'TEAM_LEAD' && (
-        <div>
-          <h3>General User Actions</h3>
-          {/* Add general user-specific components or actions here */}
         </div>
       )}
     </div>
