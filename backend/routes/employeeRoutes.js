@@ -6,17 +6,14 @@ const employeeController = require("../contollers/employeeControllers")
 const authenticate = require('../middlewares/authenticate');
 
 const authorize = require('../middlewares/authorize');
+const validateInput =require('../middlewares/validateInput')
 const { PrismaClient } = require('@prisma/client');
 
 
-router.use(authenticate);
-
-router.get('/:companyId',employeeController.getAllEmployees);
-router.get('/:id', employeeController.getEmployeeById);
-router.post('/', employeeController.createEmployee);
-router.put('/:id', employeeController.updateEmployee);
-router.delete('/:id',
-
-employeeController.deleteEmployee);
+router.get('/:companyId',authenticate,employeeController.getAllEmployees);
+router.get('/:id', authenticate,employeeController.getEmployeeById);
+router.post('/', authorize,validateInput, employeeController.createEmployee);
+router.put('/:id',authorize,validateInput, employeeController.updateEmployee);
+router.delete('/:id',authorize,employeeController.deleteEmployee);
 
 module.exports = router;

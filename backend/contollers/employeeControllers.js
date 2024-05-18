@@ -42,7 +42,7 @@ const employeeController = {
       
       return res.status(400).json({ error: 'Email or mobile number already exists for this company' });
     }
-
+   
     // Create the new employee
     const newEmployee = await Employee.create({
       name,
