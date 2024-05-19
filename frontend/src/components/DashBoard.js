@@ -8,6 +8,7 @@ import TeamManagement from './TeamManagement';
 function Dashboard() {
   const [userRole, setUserRole] = useState(null);
   const [logoutSuccess, setLogoutSuccess] = useState(false);
+  const [companyId, setCompanyId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,7 +20,9 @@ function Dashboard() {
           return;
         }
         const decodedToken = jwtDecode(token);
+        console.log(decodedToken)
         setUserRole(decodedToken.role);
+        setCompanyId(decodedToken.userId);
       } catch (error) {
         console.error('Error fetching user role:', error);
         navigate('/login');
@@ -46,6 +49,8 @@ function Dashboard() {
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">Dashboard</h2>
+        <h3 className="text-3xl font-bold"> {userRole === 'TEAM_LEAD' ? 'TEAM LEAD' : 'COMPANY'} ID : {companyId}</h3>
+        
         <button
           onClick={handleLogout}
           className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"

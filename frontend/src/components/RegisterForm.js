@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -49,10 +50,10 @@ function RegisterForm() {
         // Show registration success alert
         setRegistrationSuccess(true);
       }
-
+      Cookies.set('token', res.data.token);
       setTimeout(() => {
         navigate('/dashboard');
-      }, 2000);
+      }, 1000);
     } catch (error) {
       setErrorMessage(error.response.data.error);
       setTimeout(() => {
