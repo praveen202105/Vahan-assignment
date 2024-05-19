@@ -1,9 +1,9 @@
 
 const express = require('express');
 const router = express.Router();
-const TeamController = require('../contollers/teamController');
+const TeamController = require('../controllers/teamController');
 const authenticate = require('../middlewares/authenticate');
-const authorize = require('../middlewares/authorize');
+
 
 
 router.use(authenticate);

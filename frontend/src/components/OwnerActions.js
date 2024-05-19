@@ -5,13 +5,15 @@ import {jwtDecode} from 'jwt-decode';
 import EmployeeForm from './EmployeeForm';
 
 function OwnerActions() {
-  const [employees, setEmployees] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [formMode, setFormMode] = useState('add');
-  const [success, setSuccess] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [state, setState] = useState({
+    employees: [],
+    showForm: false,
+    formMode: 'add',
+    success: false,
+    errorMessage: '',
+    selectedEmployee: null,
+    deleteSuccess: false,
+  });
 
   const token = Cookies.get('token');
   const decodedToken = jwtDecode(token);
@@ -27,7 +29,10 @@ function OwnerActions() {
         };
 
         const response = await axios.get(`http://localhost:3000/employees/${companyId}`, config);
-        setEmployees(response.data);
+        setState((prevState) => ({
+          ...prevState,
+          employees: response.data,
+        }));
       } catch (error) {
         console.error(error);
       }
@@ -36,20 +41,27 @@ function OwnerActions() {
     fetchEmployees();
   }, [companyId, token]);
 
+  const handleChange = (name, value) => {
+    setState((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
   const handleAddEmployee = () => {
-    setShowForm(true);
-    setFormMode('add');
+    handleChange('showForm', true);
+    handleChange('formMode', 'add');
   };
 
   const handleEditEmployee = (employee) => {
-    setSelectedEmployee(employee);
-    setShowForm(true);
-    setFormMode('edit');
+    handleChange('selectedEmployee', employee);
+    handleChange('showForm', true);
+    handleChange('formMode', 'edit');
   };
 
   const handleCloseForm = () => {
-    setShowForm(false);
-    setSelectedEmployee(null);
+    handleChange('showForm', false);
+    handleChange('selectedEmployee', null);
   };
 
   const handleSubmitForm = async (formData) => {
@@ -59,33 +71,33 @@ function OwnerActions() {
       },
     };
 
-    if (formMode === 'add') {
+    if (state.formMode === 'add') {
       try {
         formData.companyId = parseInt(companyId);
 
         const response = await axios.post('http://localhost:3000/employees', formData, config);
 
         if (response.status === 200) {
-          setSuccess(true);
+          handleChange('success', true);
         }
         setTimeout(() => {
-          setSuccess(false);
+          handleChange('success', false);
           handleCloseForm();
-          setEmployees([...employees, response.data]);
+          handleChange('employees', [...state.employees, response.data]);
         }, 1000);
       } catch (error) {
-        setErrorMessage(error.response.data.error);
+        handleChange('errorMessage', error.response.data.error);
         setTimeout(() => {
-          setErrorMessage('');
+          handleChange('errorMessage', '');
         }, 2000);
         console.log(error.response.data.error);
       }
-    } else if (formMode === 'edit') {
+    } else if (state.formMode === 'edit') {
       try {
-        const response = await axios.put(`http://localhost:3000/employees/${selectedEmployee.id}`, formData, config);
+        const response = await axios.put(`http://localhost:3000/employees/${state.selectedEmployee.id}`, formData, config);
 
-        const updatedEmployees = employees.map((emp) => {
-          if (emp.id === selectedEmployee.id) {
+        const updatedEmployees = state.employees.map((emp) => {
+          if (emp.id === state.selectedEmployee.id) {
             return response.data;
           } else {
             return emp;
@@ -93,17 +105,17 @@ function OwnerActions() {
         });
 
         if (response.status === 200) {
-          setSuccess(true);
+          handleChange('success', true);
         }
         setTimeout(() => {
           handleCloseForm();
-          setSuccess(false);
-          setEmployees(updatedEmployees);
+          handleChange('success', false);
+          handleChange('employees', updatedEmployees);
         }, 1000);
       } catch (error) {
-        setErrorMessage(error.response.data.error);
+        handleChange('errorMessage', error.response.data.error);
         setTimeout(() => {
-          setErrorMessage('');
+          handleChange('errorMessage', '');
         }, 2000);
         console.error('Error editing employee:', error);
       }
@@ -120,10 +132,10 @@ function OwnerActions() {
     try {
       await axios.delete(`http://localhost:3000/employees/${employeeId}`, config);
 
-      setEmployees(employees.filter((employee) => employee.id !== employeeId));
-      setDeleteSuccess(true);
+      handleChange('employees', state.employees.filter((employee) => employee.id !== employeeId));
+      handleChange('deleteSuccess', true);
       setTimeout(() => {
-        setDeleteSuccess(false);
+        handleChange('deleteSuccess', false);
       }, 1000);
     } catch (error) {
       alert(error.response.data.error);
@@ -140,17 +152,17 @@ function OwnerActions() {
       >
         Add Employee
       </button>
-      {showForm && (
+      {state.showForm && (
         <EmployeeForm
-          mode={formMode}
-          employeeData={selectedEmployee}
+          mode={state.formMode}
+          employeeData={state.selectedEmployee}
           onSubmit={handleSubmitForm}
           onClose={handleCloseForm}
-          success={success}
-          errormsg={errorMessage}
+          success={state.success}
+          errormsg={state.errorMessage}
         />
       )}
-      {deleteSuccess && (
+      {state.deleteSuccess && (
         <div className="mb-4 px-4 py-2 bg-green-500 text-white rounded-lg">
           Employee deleted successfully!
         </div>
@@ -167,7 +179,7 @@ function OwnerActions() {
             </tr>
           </thead>
           <tbody>
-            {employees.map((employee) => (
+            {state.employees.map((employee) => (
               <tr key={employee.id}>
                 <td className="border px-4 py-2">{employee.name}</td>
                 <td className="border px-4 py-2">{employee.email}</td>

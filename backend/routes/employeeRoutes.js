@@ -2,12 +2,12 @@
 
 const express = require('express');
 const router = express.Router();
-const employeeController = require("../contollers/employeeControllers")
+const employeeController = require("../controllers/employeeControllers")
 const authenticate = require('../middlewares/authenticate');
 
 const authorize = require('../middlewares/authorize');
 const validateInput =require('../middlewares/validateInput')
-const { PrismaClient } = require('@prisma/client');
+
 
 
 router.get('/:companyId',authenticate,employeeController.getAllEmployees);

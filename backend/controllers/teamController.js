@@ -1,6 +1,6 @@
 
 const EmployeeModel = require('../models/employee');
-const db = require('../confiq/database');
+const db = require('../config/database');
 
 const addEmployee = async (req, res) => {
   const { employeeId } = req.body;

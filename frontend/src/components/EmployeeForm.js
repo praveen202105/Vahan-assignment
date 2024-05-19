@@ -11,10 +11,21 @@ function EmployeeForm({ mode, employeeData, onSubmit,success,errormsg ,onClose})
       setName(employeeData.name);
       setEmail(employeeData.email);
       setMobile(employeeData.mobile);
+
+      console.log(employeeData.dob )
       // Check if employeeData has dob and set it as default value
-      setDob(employeeData.dob ? employeeData.dob : ''); 
+      // setDob(employeeData.dob ? employeeData.dob : ''); 
+      setDob(employeeData.dob ? formatDate(employeeData.dob) : '');
     }
   }, [mode, employeeData]);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();

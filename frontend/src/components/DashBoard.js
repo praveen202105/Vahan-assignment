@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import OwnerActions from './OwnerActions';
 import TeamManagement from './TeamManagement';
@@ -30,12 +30,12 @@ function Dashboard() {
   }, [navigate]);
 
   const handleLogout = () => {
-    Cookies.remove('token');
+   
     setLogoutSuccess(true);
     setTimeout(() => {
-      setLogoutSuccess(false);
       navigate('/login');
-    }, 2000); // Show the message for 2 seconds
+      Cookies.remove('token');
+    }, 2000);
   };
 
   if (!userRole) {

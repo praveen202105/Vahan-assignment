@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
   const [loginError, setLoginError] = useState('');
   const [showTryAgain, setShowTryAgain] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
@@ -36,18 +38,28 @@ function LoginForm() {
     };
   }, [loginError]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const res = await axios.post('http://localhost:3000/auth/login', {
-        email,
-        password,
+        email: formData.email,
+        password: formData.password,
       });
 
       const companyId = res.data.user.id;
-      setEmail('');
-      setPassword('');
+      setFormData({
+        email: '',
+        password: ''
+      });
       setLoginError('');
       Cookies.set('token', res.data.token);
       setLoginSuccess(true);
@@ -72,8 +84,9 @@ function LoginForm() {
             <input
               type="email"
               id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               required
               className="w-full px-3 py-2 border rounded-lg"
             />
@@ -83,8 +96,9 @@ function LoginForm() {
             <input
               type="password"
               id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
               required
               className="w-full px-3 py-2 border rounded-lg"
             />
@@ -101,8 +115,13 @@ function LoginForm() {
         {loginSuccess && (
           <div className="mt-4 text-green-500 text-center">Login successful!</div>
         )}
+        <div className="mt-4 text-center">
+          <Link to="/register" className="text-blue-500 hover:underline">
+            Don't have an account? Register
+          </Link>
+        </div>
       </div>
-    </div>
+    </div> 
   );
 }
 

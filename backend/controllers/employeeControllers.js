@@ -1,9 +1,8 @@
 
 const Employee = require('../models/employee');
 
-const db = require('../confiq/database');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const db = require('../config/database');
+
 const employeeController = {
   getAllEmployees: async (req, res) => {
     try {
@@ -28,7 +27,7 @@ const employeeController = {
   const { name, email, mobile, dob, companyId } = req.body; // Include companyId in the request body
   try {
     // Check if the email or mobile already exists for the given companyId
-    const existingEmployee = await prisma.employee.findFirst({
+    const existingEmployee = await db.employee.findFirst({
       where: {
         companyId,
         OR: [
@@ -66,7 +65,7 @@ updateEmployee: async (req, res) => {
   
   try {
     // Find the employee record by id
-    const employee = await prisma.employee.findUnique({
+    const employee = await db.employee.findUnique({
       where: { id: parseInt(id) }
     });
     // Retrieve the companyId of the current employee

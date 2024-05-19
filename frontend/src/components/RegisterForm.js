@@ -1,24 +1,33 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function RegisterForm() {
-  const [role, setRole] = useState('');
-  const [organizationName, setOrganizationName] = useState('');
-  const [organizationId, setOrganizationId] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    role: '',
+    organizationName: '',
+    organizationId: '',
+    email: '',
+    password: ''
+  });
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const handleRoleChange = (e) => {
-    setRole(e.target.value);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      const { role, organizationName, organizationId, email, password } = formData;
+
       const res = await axios.post('http://localhost:3000/auth/register', {
         email,
         password,
@@ -28,28 +37,27 @@ function RegisterForm() {
       });
 
       // Reset form fields after successful submission
-      setRole('');
-      setOrganizationName('');
-      setOrganizationId('');
-      setEmail('');
-      setPassword('');
-      
-      // console.log(res.status);
-      
+      setFormData({
+        role: '',
+        organizationName: '',
+        organizationId: '',
+        email: '',
+        password: ''
+      });
+
       if (res.status === 200) {
         // Show registration success alert
         setRegistrationSuccess(true);
       }
+
       setTimeout(() => {
         navigate('/dashboard');
       }, 2000);
     } catch (error) {
-      console.log(error.response.data.error);
       setErrorMessage(error.response.data.error);
       setTimeout(() => {
         setErrorMessage('');
       }, 4000);
-      console.error(error.response.data.error);
     }
   };
 
@@ -63,8 +71,9 @@ function RegisterForm() {
             <input
               type="email"
               id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               required
               className="w-full px-3 py-2 border rounded-lg"
             />
@@ -74,8 +83,9 @@ function RegisterForm() {
             <input
               type="password"
               id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
               required
               className="w-full px-3 py-2 border rounded-lg"
             />
@@ -84,8 +94,9 @@ function RegisterForm() {
             <label htmlFor="role" className="block text-gray-700">Select Role:</label>
             <select
               id="role"
-              value={role}
-              onChange={handleRoleChange}
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
               className="w-full px-3 py-2 border rounded-lg"
             >
               <option value="">Select Role</option>
@@ -93,30 +104,32 @@ function RegisterForm() {
               <option value="TEAM_LEAD">Team Leader</option>
             </select>
           </div>
-          {role === 'OWNER' &&
+          {formData.role === 'OWNER' && (
             <div className="mb-4">
               <label htmlFor="organizationName" className="block text-gray-700">Organization Name:</label>
               <input
                 type="text"
                 id="organizationName"
-                value={organizationName}
-                onChange={(e) => setOrganizationName(e.target.value)}
+                name="organizationName"
+                value={formData.organizationName}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border rounded-lg"
               />
             </div>
-          }
-          {role === 'TEAM_LEAD' &&
+          )}
+          {formData.role === 'TEAM_LEAD' && (
             <div className="mb-4">
               <label htmlFor="organizationId" className="block text-gray-700">Company ID:</label>
               <input
                 type="text"
                 id="organizationId"
-                value={organizationId}
-                onChange={(e) => setOrganizationId(e.target.value)}
+                name="organizationId"
+                value={formData.organizationId}
+                onChange={handleChange}
                 className="w-full px-3 py-2 border rounded-lg"
               />
             </div>
-          }
+          )}
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
@@ -130,6 +143,11 @@ function RegisterForm() {
         {registrationSuccess && (
           <div className="mt-4 text-green-500 text-center">Registration successful!</div>
         )}
+        <div className="mt-4 text-center">
+          <Link to="/login" className="text-blue-500 hover:underline">
+            Already have an account? Login
+          </Link>
+        </div>
       </div>
     </div>
   );

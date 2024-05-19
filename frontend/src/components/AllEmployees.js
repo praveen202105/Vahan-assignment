@@ -3,7 +3,7 @@
 import React from 'react';
 
 const AllEmployees = ({ employees, renderAddButton }) => {
-    console.log(employees)
+    // console.log(employees)
   return (
     <ul>
       {employees.map((employee) => (

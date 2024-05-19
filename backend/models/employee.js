@@ -1,5 +1,5 @@
 
-const db = require('../confiq/database');
+const db = require('../config/database');
 
 const addEmployeeToTeam = async (employeeId, teamLeadId) => {
   try {
